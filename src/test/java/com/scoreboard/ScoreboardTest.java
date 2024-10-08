@@ -85,8 +85,8 @@ class ScoreboardTest {
 
         //Then
         assertThat(matchesInProgress, hasSize(3));
-        assertThat(matchesInProgress.get(0), equalTo(new Match(HOME_TEAM_2, AWAY_TEAM_2, 6, 2)));
-        assertThat(matchesInProgress.get(1), equalTo(new Match(HOME_TEAM_1, AWAY_TEAM_1, 6, 0)));
-        assertThat(matchesInProgress.get(3), equalTo(new Match(HOME_TEAM_3, AWAY_TEAM_3, 0, 3)));
+        assertThat(matchesInProgress.get(0), is(samePropertyValuesAs(new Match(HOME_TEAM_2, AWAY_TEAM_2, 6, 2))));
+        assertThat(matchesInProgress.get(1), is(samePropertyValuesAs(new Match(HOME_TEAM_1, AWAY_TEAM_1, 6, 0))));
+        assertThat(matchesInProgress.get(2), is(samePropertyValuesAs(new Match(HOME_TEAM_3, AWAY_TEAM_3, 0, 3))));
     }
 }

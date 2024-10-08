@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Scoreboard {
 
@@ -19,7 +20,12 @@ public class Scoreboard {
     }
 
     public List<Match> getSummary() {
-        return matchesInProgress;
+        return matchesInProgress.stream()
+                .sorted((o1, o2) -> {
+                    int oneMatchTotalScore = o1.getHomeTeamScore() + o1.getAwayTeamScore();
+                    int otherMatchTotalScore = o2.getHomeTeamScore() + o2.getAwayTeamScore();
+                    return Integer.compare(otherMatchTotalScore, oneMatchTotalScore);
+                }).collect(Collectors.toList());
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeTeamScore, int awayTeamScore) {
