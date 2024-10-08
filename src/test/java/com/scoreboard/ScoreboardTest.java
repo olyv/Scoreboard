@@ -89,4 +89,24 @@ class ScoreboardTest {
         assertThat(matchesInProgress.get(1), is(samePropertyValuesAs(new Match(HOME_TEAM_1, AWAY_TEAM_1, 6, 0))));
         assertThat(matchesInProgress.get(2), is(samePropertyValuesAs(new Match(HOME_TEAM_3, AWAY_TEAM_3, 0, 3))));
     }
+
+    @Test
+    public void shouldGetSummaryOfMatchesInProgressOrderedByMostRecentStart_givenTotalScoresAreEqual() {
+        //Given
+        scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
+        scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, 2, 1);
+        scoreboard.startNewMatch(HOME_TEAM_2, AWAY_TEAM_2);
+        scoreboard.updateScore(HOME_TEAM_2, AWAY_TEAM_2, 1, 2);
+        scoreboard.startNewMatch(HOME_TEAM_3, AWAY_TEAM_3);
+        scoreboard.updateScore(HOME_TEAM_3, AWAY_TEAM_3, 0, 3);
+
+        //When
+        List<Match> matchesInProgress = scoreboard.getSummary();
+
+        //Then
+        assertThat(matchesInProgress, hasSize(3));
+        assertThat(matchesInProgress.get(0), is(samePropertyValuesAs(new Match(HOME_TEAM_3, AWAY_TEAM_3, 0, 3))));
+        assertThat(matchesInProgress.get(1), is(samePropertyValuesAs(new Match(HOME_TEAM_2, AWAY_TEAM_2, 1, 2))));
+        assertThat(matchesInProgress.get(2), is(samePropertyValuesAs(new Match(HOME_TEAM_1, AWAY_TEAM_1, 2, 1))));
+    }
 }
