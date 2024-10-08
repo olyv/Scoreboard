@@ -32,6 +32,22 @@ class ScoreboardTest {
 
     @Test
     public void shouldUpdateMatchScore() {
+        //Given
+        final String homeTeam = "Mexico";
+        final String awayTeam = "Canada";
+        final int homeTeamScore = 1;
+        final int awayTeamScore = 3;
+
+        Scoreboard scoreboard = new Scoreboard();
+        scoreboard.startNewMatch(homeTeam, awayTeam);
+
+        //When
+        scoreboard.updateScore(homeTeam, awayTeam, homeTeamScore, awayTeamScore);
+
+        //Then
+        Match matchInProgress = scoreboard.getSummary().get(0);
+        assertThat(matchInProgress.getHomeTeamScore(), equalTo(homeTeamScore));
+        assertThat(matchInProgress.getAwayTeamScore(), equalTo(awayTeamScore));
 
     }
 
@@ -44,5 +60,4 @@ class ScoreboardTest {
     public void shouldGetSummaryOfMatchesInProgress() {
 
     }
-
 }
