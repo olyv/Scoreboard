@@ -1,5 +1,6 @@
 package com.scoreboard;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -9,23 +10,28 @@ import static org.hamcrest.Matchers.*;
 
 class ScoreboardTest {
 
+    private static final String HOME_TEAM = "Mexico";
+    private static final String AWAY_TEAM = "Canada";
+
+    private Scoreboard scoreboard;
+
+    @BeforeEach
+    public void setUp() {
+        scoreboard = new Scoreboard();
+    }
+
     @Test
     public void shouldStartNewMatch() {
         //Given
-        final String homeTeam = "Mexico";
-        final String awayTeam = "Canada";
-
-        Scoreboard scoreboard = new Scoreboard();
-
         //When
-        scoreboard.startNewMatch(homeTeam, awayTeam);
+        scoreboard.startNewMatch(HOME_TEAM, AWAY_TEAM);
 
         //Then
         List<Match> matchesInProgress = scoreboard.getSummary();
         assertThat(matchesInProgress, hasSize(1));
         Match match = matchesInProgress.get(0);
-        assertThat(match.getHomeTeam(), equalTo(homeTeam));
-        assertThat(match.getAwayTeam(), equalTo(awayTeam));
+        assertThat(match.getHomeTeam(), equalTo(HOME_TEAM));
+        assertThat(match.getAwayTeam(), equalTo(AWAY_TEAM));
         assertThat(match.getHomeTeamScore(), equalTo(0));
         assertThat(match.getAwayTeamScore(), equalTo(0));
     }
@@ -33,16 +39,12 @@ class ScoreboardTest {
     @Test
     public void shouldUpdateMatchScore() {
         //Given
-        final String homeTeam = "Mexico";
-        final String awayTeam = "Canada";
         final int homeTeamScore = 1;
         final int awayTeamScore = 3;
-
-        Scoreboard scoreboard = new Scoreboard();
-        scoreboard.startNewMatch(homeTeam, awayTeam);
+        scoreboard.startNewMatch(HOME_TEAM, AWAY_TEAM);
 
         //When
-        scoreboard.updateScore(homeTeam, awayTeam, homeTeamScore, awayTeamScore);
+        scoreboard.updateScore(HOME_TEAM, AWAY_TEAM, homeTeamScore, awayTeamScore);
 
         //Then
         Match matchInProgress = scoreboard.getSummary().get(0);
@@ -53,6 +55,15 @@ class ScoreboardTest {
 
     @Test
     public void shouldFinishMatchInProgress() {
+        //Given
+        scoreboard.startNewMatch(HOME_TEAM, AWAY_TEAM);
+
+        //When
+        scoreboard.finishMatch(HOME_TEAM, AWAY_TEAM);
+
+        //Then
+        List<Match> matchesInProgress = scoreboard.getSummary();
+        assertThat(matchesInProgress, empty());
 
     }
 

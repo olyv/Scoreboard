@@ -25,4 +25,8 @@ public class Scoreboard {
         matchInProgress.setHomeTeamScore(homeTeamScore);
         matchInProgress.setAwayTeamScore(awayTeamScore);
     }
+
+    public void finishMatch(String homeTeam, String awayTeam) {
+        matchesInProgress.removeIf(it -> it.getHomeTeam().equals(homeTeam) && it.getAwayTeam().equals(awayTeam));
+    }
 }
