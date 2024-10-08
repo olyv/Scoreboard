@@ -12,6 +12,11 @@ public final class Match {
         this.awayTeam = awayTeam;
     }
 
+    public Match(String homeTeam, String awayTeam, int homeTeamScore, int awayTeamScore) {
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+    }
+
     public String getHomeTeam() {
         return this.homeTeam;
     }
@@ -24,12 +29,12 @@ public final class Match {
         return homeTeamScore;
     }
 
-    public int getAwayTeamScore() {
-        return awayTeamScore;
-    }
-
     public void setHomeTeamScore(int homeTeamScore) {
         this.homeTeamScore = homeTeamScore;
+    }
+
+    public int getAwayTeamScore() {
+        return awayTeamScore;
     }
 
     public void setAwayTeamScore(int awayTeamScore) {
