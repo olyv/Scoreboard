@@ -3,10 +3,15 @@ package com.scoreboard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 public class Scoreboard {
 
     private final List<Match> matchesInProgress = new ArrayList<>();
+
+    private static Predicate<Match> getMatchInProgressPredicate(String homeTeam, String awayTeam) {
+        return it -> it.getHomeTeam().equals(homeTeam) && it.getAwayTeam().equals(awayTeam);
+    }
 
     public void startNewMatch(String homeTeam, String awayTeam) {
         Match match = new Match(homeTeam, awayTeam);
@@ -19,7 +24,7 @@ public class Scoreboard {
 
     public void updateScore(String homeTeam, String awayTeam, int homeTeamScore, int awayTeamScore) {
         Match matchInProgress = matchesInProgress.stream()
-                .filter(it -> it.getHomeTeam().equals(homeTeam) && it.getAwayTeam().equals(awayTeam))
+                .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
                 .findFirst()
                 .orElseThrow(NoSuchElementException::new);
         matchInProgress.setHomeTeamScore(homeTeamScore);
@@ -27,6 +32,6 @@ public class Scoreboard {
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
-        matchesInProgress.removeIf(it -> it.getHomeTeam().equals(homeTeam) && it.getAwayTeam().equals(awayTeam));
+        matchesInProgress.removeIf(getMatchInProgressPredicate(homeTeam, awayTeam));
     }
 }
