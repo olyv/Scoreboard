@@ -6,8 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.Clock;
-import java.time.Duration;
+import java.time.*;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -52,6 +51,9 @@ class ScoreboardTest {
     @Test
     public void shouldUpdateMatchScore() {
         //Given
+        Clock fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        LocalDateTime expectedUpdateTime = LocalDateTime.now(fixedClock);
+        scoreboard.setClock(fixedClock);
         final int homeTeamScore = 1;
         final int awayTeamScore = 3;
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
@@ -63,7 +65,7 @@ class ScoreboardTest {
         Match matchInProgress = scoreboard.getSummary().get(0);
         assertThat(matchInProgress.getHomeTeamScore(), equalTo(homeTeamScore));
         assertThat(matchInProgress.getAwayTeamScore(), equalTo(awayTeamScore));
-        //TODO: add assertion for latestUpdate field
+        assertThat(matchInProgress.getLatestUpdate(), equalTo(expectedUpdateTime));
     }
 
     @Test
