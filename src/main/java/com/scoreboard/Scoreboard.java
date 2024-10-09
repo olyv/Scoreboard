@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,6 @@ public class Scoreboard {
         }
     }
 
-
     public List<Match> getSummary() {
         return matchesInProgress.stream()
                 .sorted(getMatchComparator())
@@ -62,13 +60,20 @@ public class Scoreboard {
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeTeamScore, int awayTeamScore) {
+        validateUpdateScoreInput(homeTeamScore, awayTeamScore);
         Match matchInProgress = matchesInProgress.stream()
                 .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
                 .findFirst()
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(() -> new IllegalArgumentException("Not able to update score as match not in progress"));
         matchInProgress.setHomeTeamScore(homeTeamScore);
         matchInProgress.setAwayTeamScore(awayTeamScore);
         matchInProgress.setLatestUpdate(LocalDateTime.now(this.clock));
+    }
+
+    private void validateUpdateScoreInput(int homeTeamScore, int awayTeamScore) {
+        if (homeTeamScore < 0 || awayTeamScore < 0) {
+            throw new IllegalArgumentException("Attempt to set invalid values as new match score");
+        }
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
