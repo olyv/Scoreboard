@@ -36,6 +36,9 @@ class ScoreboardTest {
     @Test
     public void shouldStartNewMatch() {
         //Given When
+        Clock fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        LocalDateTime expectedUpdateTime = LocalDateTime.now(fixedClock);
+        scoreboard.setClock(fixedClock);
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
 
         //Then
@@ -46,6 +49,7 @@ class ScoreboardTest {
         assertThat(match.getAwayTeam(), equalTo(AWAY_TEAM_1));
         assertThat(match.getHomeTeamScore(), equalTo(0));
         assertThat(match.getAwayTeamScore(), equalTo(0));
+        assertThat(match.getLatestUpdate(), equalTo(expectedUpdateTime));
     }
 
     @Test
@@ -190,5 +194,14 @@ class ScoreboardTest {
                 Arguments.of(-1, 1),
                 Arguments.of(1, -2)
         );
+    }
+
+    @Test
+    public void shouldNotFinishMatch_givenMatchNotInProgress() {
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.finishMatch(HOME_TEAM_1, AWAY_TEAM_1)
+        );
+        assertEquals(exception.getMessage(), "Not able to finish match as it is not in progress");
     }
 }

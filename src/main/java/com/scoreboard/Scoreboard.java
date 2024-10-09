@@ -39,6 +39,7 @@ public class Scoreboard {
     public void startNewMatch(String homeTeam, String awayTeam) {
         validateStartNewMatchInput(homeTeam, awayTeam);
         Match match = new Match(homeTeam, awayTeam);
+        match.setLatestUpdate(LocalDateTime.now(this.clock));
         matchesInProgress.add(match);
     }
 
@@ -77,6 +78,10 @@ public class Scoreboard {
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
-        matchesInProgress.removeIf(getMatchInProgressPredicate(homeTeam, awayTeam));
+        Match matchInProgress = matchesInProgress.stream()
+                .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Not able to finish match as it is not in progress"));
+        matchesInProgress.remove(matchInProgress);
     }
 }
