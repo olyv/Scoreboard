@@ -77,7 +77,6 @@ class ScoreboardTest {
         //Then
         List<Match> matchesInProgress = scoreboard.getSummary();
         assertThat(matchesInProgress, empty());
-
     }
 
     @Test
@@ -183,7 +182,6 @@ class ScoreboardTest {
         );
         assertEquals(exception.getMessage(), "Attempt to set invalid values as new match score");
     }
-
 
     public static Stream<Arguments> updateMatchWithInvalidInput() {
         return Stream.of(
