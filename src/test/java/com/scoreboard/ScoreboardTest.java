@@ -3,6 +3,8 @@ package com.scoreboard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,10 +20,12 @@ class ScoreboardTest {
     private static final String AWAY_TEAM_3 = "France";
 
     private Scoreboard scoreboard;
+    private Clock clock;
 
     @BeforeEach
     public void setUp() {
-        scoreboard = new Scoreboard();
+        clock = Clock.systemDefaultZone();
+        scoreboard = new Scoreboard(clock);
     }
 
     @Test
@@ -75,8 +79,10 @@ class ScoreboardTest {
         //Given
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
         scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, 6, 0);
+
         scoreboard.startNewMatch(HOME_TEAM_2, AWAY_TEAM_2);
         scoreboard.updateScore(HOME_TEAM_2, AWAY_TEAM_2, 6, 2);
+
         scoreboard.startNewMatch(HOME_TEAM_3, AWAY_TEAM_3);
         scoreboard.updateScore(HOME_TEAM_3, AWAY_TEAM_3, 0, 3);
 
@@ -85,28 +91,36 @@ class ScoreboardTest {
 
         //Then
         assertThat(matchesInProgress, hasSize(3));
-        assertThat(matchesInProgress.get(0), is(samePropertyValuesAs(new Match(HOME_TEAM_2, AWAY_TEAM_2, 6, 2))));
-        assertThat(matchesInProgress.get(1), is(samePropertyValuesAs(new Match(HOME_TEAM_1, AWAY_TEAM_1, 6, 0))));
-        assertThat(matchesInProgress.get(2), is(samePropertyValuesAs(new Match(HOME_TEAM_3, AWAY_TEAM_3, 0, 3))));
+        assertThat(matchesInProgress.get(0).getHomeTeam(), equalTo(HOME_TEAM_2));
+        assertThat(matchesInProgress.get(1).getHomeTeam(), equalTo(HOME_TEAM_1));
+        assertThat(matchesInProgress.get(2).getHomeTeam(), equalTo(HOME_TEAM_3));
     }
 
     @Test
     public void shouldGetSummaryOfMatchesInProgressOrderedByMostRecentStart_givenTotalScoresAreEqual() {
         //Given
+        Duration toFiveMinutesInThePast = Duration.ofMinutes(-5);
+        scoreboard.setClock(Clock.offset(clock, toFiveMinutesInThePast));
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
-        scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, 2, 1);
+        scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, 0, 0);
+
+        Duration noOffset = Duration.ofMinutes(0);
+        scoreboard.setClock(Clock.offset(clock, noOffset));
         scoreboard.startNewMatch(HOME_TEAM_2, AWAY_TEAM_2);
-        scoreboard.updateScore(HOME_TEAM_2, AWAY_TEAM_2, 1, 2);
+        scoreboard.updateScore(HOME_TEAM_2, AWAY_TEAM_2, 2, 2);
+
+        Duration toFiveMinutesInTheFuture = Duration.ofMinutes(5);
+        scoreboard.setClock(Clock.offset(clock, toFiveMinutesInTheFuture));
         scoreboard.startNewMatch(HOME_TEAM_3, AWAY_TEAM_3);
-        scoreboard.updateScore(HOME_TEAM_3, AWAY_TEAM_3, 0, 3);
+        scoreboard.updateScore(HOME_TEAM_3, AWAY_TEAM_3, 2, 2);
 
         //When
         List<Match> matchesInProgress = scoreboard.getSummary();
 
         //Then
         assertThat(matchesInProgress, hasSize(3));
-        assertThat(matchesInProgress.get(0), is(samePropertyValuesAs(new Match(HOME_TEAM_3, AWAY_TEAM_3, 0, 3))));
-        assertThat(matchesInProgress.get(1), is(samePropertyValuesAs(new Match(HOME_TEAM_2, AWAY_TEAM_2, 1, 2))));
-        assertThat(matchesInProgress.get(2), is(samePropertyValuesAs(new Match(HOME_TEAM_1, AWAY_TEAM_1, 2, 1))));
+        assertThat(matchesInProgress.get(0).getHomeTeam(), equalTo(HOME_TEAM_3));
+        assertThat(matchesInProgress.get(1).getHomeTeam(), equalTo(HOME_TEAM_2));
+        assertThat(matchesInProgress.get(2).getHomeTeam(), equalTo(HOME_TEAM_1));
     }
 }

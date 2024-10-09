@@ -1,6 +1,9 @@
 package com.scoreboard;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
@@ -8,10 +11,30 @@ import java.util.stream.Collectors;
 
 public class Scoreboard {
 
+    private Clock clock;
     private final List<Match> matchesInProgress = new ArrayList<>();
+
+    public Scoreboard(Clock clock) {
+        this.clock = clock;
+    }
 
     private static Predicate<Match> getMatchInProgressPredicate(String homeTeam, String awayTeam) {
         return it -> it.getHomeTeam().equals(homeTeam) && it.getAwayTeam().equals(awayTeam);
+    }
+
+    private static Comparator<Match> getMatchComparator() {
+        Comparator<Match> comparingByTotalScore = Comparator.comparing((Match it) -> it.getHomeTeamScore() + it.getAwayTeamScore(), Comparator.reverseOrder());
+        Comparator<Match> comparingByLatestUpdate = Comparator.comparing(Match::getLatestUpdate, Comparator.reverseOrder());
+        return comparingByTotalScore
+                .thenComparing(comparingByLatestUpdate);
+    }
+
+    public Clock getClock() {
+        return clock;
+    }
+
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     public void startNewMatch(String homeTeam, String awayTeam) {
@@ -21,11 +44,8 @@ public class Scoreboard {
 
     public List<Match> getSummary() {
         return matchesInProgress.stream()
-                .sorted((o1, o2) -> {
-                    int oneMatchTotalScore = o1.getHomeTeamScore() + o1.getAwayTeamScore();
-                    int otherMatchTotalScore = o2.getHomeTeamScore() + o2.getAwayTeamScore();
-                    return Integer.compare(otherMatchTotalScore, oneMatchTotalScore);
-                }).collect(Collectors.toList());
+                .sorted(getMatchComparator())
+                .collect(Collectors.toList());
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeTeamScore, int awayTeamScore) {
@@ -35,6 +55,7 @@ public class Scoreboard {
                 .orElseThrow(NoSuchElementException::new);
         matchInProgress.setHomeTeamScore(homeTeamScore);
         matchInProgress.setAwayTeamScore(awayTeamScore);
+        matchInProgress.setLatestUpdate(LocalDateTime.now(this.clock));
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
