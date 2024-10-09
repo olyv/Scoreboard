@@ -2,13 +2,19 @@ package com.scoreboard;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ScoreboardTest {
 
@@ -122,5 +128,36 @@ class ScoreboardTest {
         assertThat(matchesInProgress.get(0).getHomeTeam(), equalTo(HOME_TEAM_3));
         assertThat(matchesInProgress.get(1).getHomeTeam(), equalTo(HOME_TEAM_2));
         assertThat(matchesInProgress.get(2).getHomeTeam(), equalTo(HOME_TEAM_1));
+    }
+
+    @Test
+    public void shouldNotStartMatch_givenMatchInProgress() {
+        //Given
+        scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
+
+        //When Then
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1)
+        );
+        assertEquals(exception.getMessage(), "Match is already in progress");
+    }
+
+    @ParameterizedTest
+    @MethodSource("startMatchWithInvalidInput")
+    public void shouldNotStartMatch_givenInvalidInput(String homeTeam, String awayTeam) {
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.startNewMatch(homeTeam, awayTeam)
+        );
+        assertEquals(exception.getMessage(), "It is not allowed to start match for the same home and aay teams");
+    }
+
+    public static Stream<Arguments> startMatchWithInvalidInput() {
+        return Stream.of(
+                Arguments.of(HOME_TEAM_1, HOME_TEAM_1),
+                Arguments.of(HOME_TEAM_1.toLowerCase(), HOME_TEAM_1),
+                Arguments.of(HOME_TEAM_1, HOME_TEAM_1.toUpperCase())
+        );
     }
 }
