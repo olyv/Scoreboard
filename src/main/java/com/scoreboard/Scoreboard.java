@@ -38,9 +38,22 @@ public class Scoreboard {
     }
 
     public void startNewMatch(String homeTeam, String awayTeam) {
+        validateStartNewMatchInput(homeTeam, awayTeam);
         Match match = new Match(homeTeam, awayTeam);
         matchesInProgress.add(match);
     }
+
+    private void validateStartNewMatchInput(String homeTeam, String awayTeam) {
+        if (homeTeam.equalsIgnoreCase(awayTeam)) {
+            throw new IllegalArgumentException("It is not allowed to start match for the same home and away teams");
+        }
+        boolean isMatchInProgress = matchesInProgress.stream()
+                .anyMatch(getMatchInProgressPredicate(homeTeam, awayTeam));
+        if (isMatchInProgress) {
+            throw new IllegalArgumentException("Match is already in progress");
+        }
+    }
+
 
     public List<Match> getSummary() {
         return matchesInProgress.stream()

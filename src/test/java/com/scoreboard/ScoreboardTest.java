@@ -150,7 +150,7 @@ class ScoreboardTest {
                 IllegalArgumentException.class,
                 () -> scoreboard.startNewMatch(homeTeam, awayTeam)
         );
-        assertEquals(exception.getMessage(), "It is not allowed to start match for the same home and aay teams");
+        assertEquals(exception.getMessage(), "It is not allowed to start match for the same home and away teams");
     }
 
     public static Stream<Arguments> startMatchWithInvalidInput() {
