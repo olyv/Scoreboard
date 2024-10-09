@@ -63,7 +63,7 @@ class ScoreboardTest {
         Match matchInProgress = scoreboard.getSummary().get(0);
         assertThat(matchInProgress.getHomeTeamScore(), equalTo(homeTeamScore));
         assertThat(matchInProgress.getAwayTeamScore(), equalTo(awayTeamScore));
-
+        //TODO: add assertion for latestUpdate field
     }
 
     @Test
@@ -158,6 +158,37 @@ class ScoreboardTest {
                 Arguments.of(HOME_TEAM_1, HOME_TEAM_1),
                 Arguments.of(HOME_TEAM_1.toLowerCase(), HOME_TEAM_1),
                 Arguments.of(HOME_TEAM_1, HOME_TEAM_1.toUpperCase())
+        );
+    }
+
+    @Test
+    public void shouldNotUpdateScore_givenMatchNotInProgress() {
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, 0, 0)
+        );
+        assertEquals(exception.getMessage(), "Not able to update score as match not in progress");
+    }
+
+    @ParameterizedTest
+    @MethodSource("updateMatchWithInvalidInput")
+    public void shouldNotUpdateScore_givenInvalidScoreInput(int homeTeamScore, int awayTeamScore) {
+        //Given
+        scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
+
+        //When Then
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, homeTeamScore, awayTeamScore)
+        );
+        assertEquals(exception.getMessage(), "Attempt to set invalid values as new match score");
+    }
+
+
+    public static Stream<Arguments> updateMatchWithInvalidInput() {
+        return Stream.of(
+                Arguments.of(-1, 1),
+                Arguments.of(1, -2)
         );
     }
 }
