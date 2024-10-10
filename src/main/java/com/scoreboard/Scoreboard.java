@@ -45,7 +45,7 @@ public class Scoreboard {
 
     private void validateStartNewMatchInput(String homeTeam, String awayTeam) {
         if (homeTeam.equalsIgnoreCase(awayTeam)) {
-            throw new IllegalArgumentException("It is not allowed to start match for the same home and away teams");
+            throw new IllegalArgumentException("It is not allowed to start a new match when home and away teams are the same team");
         }
         boolean isMatchInProgress = matchesInProgress.stream()
                 .anyMatch(getMatchInProgressPredicate(homeTeam, awayTeam));
@@ -73,7 +73,7 @@ public class Scoreboard {
 
     private void validateUpdateScoreInput(int homeTeamScore, int awayTeamScore) {
         if (homeTeamScore < 0 || awayTeamScore < 0) {
-            throw new IllegalArgumentException("Attempt to set invalid values as new match score");
+            throw new IllegalArgumentException("Attempt to set invalid values as a new match score");
         }
     }
 
