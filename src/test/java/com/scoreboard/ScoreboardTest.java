@@ -47,8 +47,8 @@ class ScoreboardTest {
         Match match = matchesInProgress.get(0);
         assertThat(match.getHomeTeam(), equalTo(HOME_TEAM_1));
         assertThat(match.getAwayTeam(), equalTo(AWAY_TEAM_1));
-        assertThat(match.getHomeTeamScore(), equalTo(0));
-        assertThat(match.getAwayTeamScore(), equalTo(0));
+        assertThat(match.getScore().getHomeTeamScore(), equalTo(0));
+        assertThat(match.getScore().getAwayTeamScore(), equalTo(0));
         assertThat(match.getLatestUpdate(), equalTo(expectedUpdateTime));
     }
 
@@ -67,8 +67,8 @@ class ScoreboardTest {
 
         //Then
         Match matchInProgress = scoreboard.getSummary().get(0);
-        assertThat(matchInProgress.getHomeTeamScore(), equalTo(homeTeamScore));
-        assertThat(matchInProgress.getAwayTeamScore(), equalTo(awayTeamScore));
+        assertThat(matchInProgress.getScore().getHomeTeamScore(), equalTo(homeTeamScore));
+        assertThat(matchInProgress.getScore().getAwayTeamScore(), equalTo(awayTeamScore));
         assertThat(matchInProgress.getLatestUpdate(), equalTo(expectedUpdateTime));
     }
 

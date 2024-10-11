@@ -22,7 +22,11 @@ public class Scoreboard {
     }
 
     private static Comparator<Match> getMatchComparator() {
-        Comparator<Match> comparingByTotalScore = Comparator.comparing((Match it) -> it.getHomeTeamScore() + it.getAwayTeamScore(), Comparator.reverseOrder());
+        Comparator<Match> comparingByTotalScore = Comparator.comparing((Match it) -> {
+                    Score score = it.getScore();
+                    return score.getHomeTeamScore() + score.getAwayTeamScore();
+                }, Comparator.reverseOrder()
+        );
         Comparator<Match> comparingByLatestUpdate = Comparator.comparing(Match::getLatestUpdate, Comparator.reverseOrder());
         return comparingByTotalScore
                 .thenComparing(comparingByLatestUpdate);
@@ -66,8 +70,8 @@ public class Scoreboard {
                 .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Not able to update score as match not in progress"));
-        matchInProgress.setHomeTeamScore(homeTeamScore);
-        matchInProgress.setAwayTeamScore(awayTeamScore);
+        matchInProgress.getScore().setHomeTeamScore(homeTeamScore);
+        matchInProgress.getScore().setAwayTeamScore(awayTeamScore);
         matchInProgress.setLatestUpdate(LocalDateTime.now(this.clock));
     }
 

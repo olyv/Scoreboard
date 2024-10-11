@@ -6,13 +6,13 @@ public class Match {
 
     private final String homeTeam;
     private final String awayTeam;
-    private int homeTeamScore;
-    private int awayTeamScore;
+    private final Score score;
     private LocalDateTime latestUpdate;
 
     public Match(String homeTeam, String awayTeam) {
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
+        this.score = new Score();
     }
 
     public String getHomeTeam() {
@@ -23,27 +23,15 @@ public class Match {
         return awayTeam;
     }
 
-    public int getHomeTeamScore() {
-        return homeTeamScore;
-    }
-
-    public void setHomeTeamScore(int homeTeamScore) {
-        this.homeTeamScore = homeTeamScore;
-    }
-
-    public int getAwayTeamScore() {
-        return awayTeamScore;
-    }
-
-    public void setAwayTeamScore(int awayTeamScore) {
-        this.awayTeamScore = awayTeamScore;
-    }
-
     public LocalDateTime getLatestUpdate() {
         return latestUpdate;
     }
 
     public void setLatestUpdate(LocalDateTime updated) {
         this.latestUpdate = updated;
+    }
+
+    public Score getScore() {
+        return score;
     }
 }
