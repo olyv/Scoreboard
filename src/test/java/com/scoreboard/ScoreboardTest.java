@@ -20,9 +20,11 @@ class ScoreboardTest {
     private static final String HOME_TEAM_1 = "Mexico";
     private static final String HOME_TEAM_2 = "Spain";
     private static final String HOME_TEAM_3 = "Germany";
+    private static final String HOME_TEAM_4 = "Argentina";
     private static final String AWAY_TEAM_1 = "Canada";
     private static final String AWAY_TEAM_2 = "Brazil";
     private static final String AWAY_TEAM_3 = "France";
+    private static final String AWAY_TEAM_4 = "Italy";
 
     private Scoreboard scoreboard;
     private Clock clock;
@@ -49,7 +51,7 @@ class ScoreboardTest {
         assertThat(match.getAwayTeam(), equalTo(AWAY_TEAM_1));
         assertThat(match.getScore().getHomeTeamScore(), equalTo(0));
         assertThat(match.getScore().getAwayTeamScore(), equalTo(0));
-        assertThat(match.getLatestUpdate(), equalTo(expectedUpdateTime));
+        assertThat(match.getStarted(), equalTo(expectedUpdateTime));
     }
 
     @Test
@@ -69,7 +71,7 @@ class ScoreboardTest {
         Match matchInProgress = scoreboard.getSummary().get(0);
         assertThat(matchInProgress.getScore().getHomeTeamScore(), equalTo(homeTeamScore));
         assertThat(matchInProgress.getScore().getAwayTeamScore(), equalTo(awayTeamScore));
-        assertThat(matchInProgress.getLatestUpdate(), equalTo(expectedUpdateTime));
+        assertThat(matchInProgress.getStarted(), equalTo(expectedUpdateTime));
     }
 
     @Test
@@ -125,14 +127,19 @@ class ScoreboardTest {
         scoreboard.startNewMatch(HOME_TEAM_3, AWAY_TEAM_3);
         scoreboard.updateScore(HOME_TEAM_3, AWAY_TEAM_3, 2, 2);
 
+        scoreboard.setClock(Clock.offset(clock, toFiveMinutesInTheFuture));
+        scoreboard.startNewMatch(HOME_TEAM_4, AWAY_TEAM_4);
+        scoreboard.updateScore(HOME_TEAM_4, AWAY_TEAM_4, 6, 6);
+
         //When
         List<Match> matchesInProgress = scoreboard.getSummary();
 
         //Then
-        assertThat(matchesInProgress, hasSize(3));
-        assertThat(matchesInProgress.get(0).getHomeTeam(), equalTo(HOME_TEAM_3));
-        assertThat(matchesInProgress.get(1).getHomeTeam(), equalTo(HOME_TEAM_2));
-        assertThat(matchesInProgress.get(2).getHomeTeam(), equalTo(HOME_TEAM_1));
+        assertThat(matchesInProgress, hasSize(4));
+        assertThat(matchesInProgress.get(0).getHomeTeam(), equalTo(HOME_TEAM_4));
+        assertThat(matchesInProgress.get(1).getHomeTeam(), equalTo(HOME_TEAM_3));
+        assertThat(matchesInProgress.get(2).getHomeTeam(), equalTo(HOME_TEAM_2));
+        assertThat(matchesInProgress.get(3).getHomeTeam(), equalTo(HOME_TEAM_1));
     }
 
     @Test

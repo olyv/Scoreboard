@@ -27,13 +27,9 @@ public class Scoreboard {
                     return score.getHomeTeamScore() + score.getAwayTeamScore();
                 }, Comparator.reverseOrder()
         );
-        Comparator<Match> comparingByLatestUpdate = Comparator.comparing(Match::getLatestUpdate, Comparator.reverseOrder());
+        Comparator<Match> comparingByLatestUpdate = Comparator.comparing(Match::getStarted, Comparator.reverseOrder());
         return comparingByTotalScore
                 .thenComparing(comparingByLatestUpdate);
-    }
-
-    public Clock getClock() {
-        return clock;
     }
 
     public void setClock(Clock clock) {
@@ -43,7 +39,7 @@ public class Scoreboard {
     public void startNewMatch(String homeTeam, String awayTeam) {
         validateStartNewMatchInput(homeTeam, awayTeam);
         Match match = new Match(homeTeam, awayTeam);
-        match.setLatestUpdate(LocalDateTime.now(this.clock));
+        match.setStarted(LocalDateTime.now(this.clock));
         matchesInProgress.add(match);
     }
 
@@ -75,7 +71,6 @@ public class Scoreboard {
                 .orElseThrow(() -> new IllegalArgumentException("Not able to update score as match not in progress"));
         matchInProgress.getScore().setHomeTeamScore(homeTeamScore);
         matchInProgress.getScore().setAwayTeamScore(awayTeamScore);
-        matchInProgress.setLatestUpdate(LocalDateTime.now(this.clock));
     }
 
     private void validateUpdateScoreInput(int homeTeamScore, int awayTeamScore) {

@@ -7,7 +7,7 @@ public class Match {
     private final String homeTeam;
     private final String awayTeam;
     private final Score score;
-    private LocalDateTime latestUpdate;
+    private LocalDateTime started;
 
     public Match(String homeTeam, String awayTeam) {
         this.homeTeam = homeTeam;
@@ -23,12 +23,12 @@ public class Match {
         return awayTeam;
     }
 
-    public LocalDateTime getLatestUpdate() {
-        return latestUpdate;
+    public LocalDateTime getStarted() {
+        return started;
     }
 
-    public void setLatestUpdate(LocalDateTime updated) {
-        this.latestUpdate = updated;
+    public void setStarted(LocalDateTime updated) {
+        this.started = updated;
     }
 
     public Score getScore() {
