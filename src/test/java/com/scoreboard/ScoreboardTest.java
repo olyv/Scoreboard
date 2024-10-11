@@ -136,37 +136,29 @@ class ScoreboardTest {
     }
 
     @Test
-    public void shouldNotStartMatch_givenMatchInProgress() {
+    public void shouldNotStartMatch_givenHomeTeamInMatchInProgress() {
         //Given
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
 
         //When Then
         Exception exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1)
-        );
-        assertEquals(exception.getMessage(), "Match is already in progress");
-    }
-
-    @ParameterizedTest
-    @MethodSource("startMatchWithTeamInProgress")
-    public void shouldNotStartMatch_givenTeamInMatchInProgress(String team, String opponentTeam, String otherOpponentTeam) {
-        //Given
-        scoreboard.startNewMatch(team, opponentTeam);
-
-        //When Then
-        Exception exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> scoreboard.startNewMatch(team, otherOpponentTeam)
+                () -> scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_2)
         );
         assertEquals(exception.getMessage(), "Team is already in match in progress");
     }
 
-    public static Stream<Arguments> startMatchWithTeamInProgress() {
-        return Stream.of(
-                Arguments.of(HOME_TEAM_1, HOME_TEAM_2, HOME_TEAM_2),
-                Arguments.of(HOME_TEAM_1, HOME_TEAM_2, HOME_TEAM_1)
+    @Test
+    public void shouldNotStartMatch_givenAwayTeamInMatchInProgress() {
+        //Given
+        scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
+
+        //When Then
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.startNewMatch(HOME_TEAM_2, AWAY_TEAM_1)
         );
+        assertEquals(exception.getMessage(), "Team is already in match in progress");
     }
 
     @ParameterizedTest

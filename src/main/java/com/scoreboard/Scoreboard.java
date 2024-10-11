@@ -51,10 +51,13 @@ public class Scoreboard {
         if (homeTeam.equalsIgnoreCase(awayTeam)) {
             throw new IllegalArgumentException("It is not allowed to start a new match when home and away teams are the same team");
         }
-        boolean isMatchInProgress = matchesInProgress.stream()
-                .anyMatch(getMatchInProgressPredicate(homeTeam, awayTeam));
-        if (isMatchInProgress) {
-            throw new IllegalArgumentException("Match is already in progress");
+
+        boolean isHomeTeamInMatchInProgress = matchesInProgress.stream()
+                        .anyMatch(it -> it.getHomeTeam().equalsIgnoreCase(homeTeam) || it.getAwayTeam().equalsIgnoreCase(homeTeam));
+        boolean isAwaTeamInMatchInProgress = matchesInProgress.stream()
+                .anyMatch(it -> it.getHomeTeam().equalsIgnoreCase(awayTeam) || it.getAwayTeam().equalsIgnoreCase(awayTeam));
+        if (isHomeTeamInMatchInProgress || isAwaTeamInMatchInProgress) {
+            throw new IllegalArgumentException("Team is already in match in progress");
         }
     }
 
