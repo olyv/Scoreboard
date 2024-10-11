@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.*;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,9 +19,11 @@ class ScoreboardTest {
     private static final String HOME_TEAM_1 = "Mexico";
     private static final String HOME_TEAM_2 = "Spain";
     private static final String HOME_TEAM_3 = "Germany";
+    private static final String HOME_TEAM_4 = "Argentina";
     private static final String AWAY_TEAM_1 = "Canada";
     private static final String AWAY_TEAM_2 = "Brazil";
     private static final String AWAY_TEAM_3 = "France";
+    private static final String AWAY_TEAM_4 = "Italy";
 
     private Scoreboard scoreboard;
     private Clock clock;
@@ -36,27 +37,27 @@ class ScoreboardTest {
     @Test
     public void shouldStartNewMatch() {
         //Given When
-        Clock fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-        LocalDateTime expectedUpdateTime = LocalDateTime.now(fixedClock);
+        var fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        var expectedUpdateTime = LocalDateTime.now(fixedClock);
         scoreboard.setClock(fixedClock);
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
 
         //Then
-        List<Match> matchesInProgress = scoreboard.getSummary();
+        var matchesInProgress = scoreboard.getSummary();
         assertThat(matchesInProgress, hasSize(1));
-        Match match = matchesInProgress.get(0);
+        var match = matchesInProgress.getFirst();
         assertThat(match.getHomeTeam(), equalTo(HOME_TEAM_1));
         assertThat(match.getAwayTeam(), equalTo(AWAY_TEAM_1));
-        assertThat(match.getHomeTeamScore(), equalTo(0));
-        assertThat(match.getAwayTeamScore(), equalTo(0));
-        assertThat(match.getLatestUpdate(), equalTo(expectedUpdateTime));
+        assertThat(match.getScore().getHomeTeamScore(), equalTo(0));
+        assertThat(match.getScore().getAwayTeamScore(), equalTo(0));
+        assertThat(match.getStarted(), equalTo(expectedUpdateTime));
     }
 
     @Test
     public void shouldUpdateMatchScore() {
         //Given
-        Clock fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-        LocalDateTime expectedUpdateTime = LocalDateTime.now(fixedClock);
+        var fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        var expectedUpdateTime = LocalDateTime.now(fixedClock);
         scoreboard.setClock(fixedClock);
         final int homeTeamScore = 1;
         final int awayTeamScore = 3;
@@ -66,10 +67,10 @@ class ScoreboardTest {
         scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, homeTeamScore, awayTeamScore);
 
         //Then
-        Match matchInProgress = scoreboard.getSummary().get(0);
-        assertThat(matchInProgress.getHomeTeamScore(), equalTo(homeTeamScore));
-        assertThat(matchInProgress.getAwayTeamScore(), equalTo(awayTeamScore));
-        assertThat(matchInProgress.getLatestUpdate(), equalTo(expectedUpdateTime));
+        var matchInProgress = scoreboard.getSummary().getFirst();
+        assertThat(matchInProgress.getScore().getHomeTeamScore(), equalTo(homeTeamScore));
+        assertThat(matchInProgress.getScore().getAwayTeamScore(), equalTo(awayTeamScore));
+        assertThat(matchInProgress.getStarted(), equalTo(expectedUpdateTime));
     }
 
     @Test
@@ -81,7 +82,7 @@ class ScoreboardTest {
         scoreboard.finishMatch(HOME_TEAM_1, AWAY_TEAM_1);
 
         //Then
-        List<Match> matchesInProgress = scoreboard.getSummary();
+        var matchesInProgress = scoreboard.getSummary();
         assertThat(matchesInProgress, empty());
     }
 
@@ -98,7 +99,7 @@ class ScoreboardTest {
         scoreboard.updateScore(HOME_TEAM_3, AWAY_TEAM_3, 0, 3);
 
         //When
-        List<Match> matchesInProgress = scoreboard.getSummary();
+        var matchesInProgress = scoreboard.getSummary();
 
         //Then
         assertThat(matchesInProgress, hasSize(3));
@@ -110,48 +111,66 @@ class ScoreboardTest {
     @Test
     public void shouldGetSummaryOfMatchesInProgressOrderedByMostRecentStart_givenTotalScoresAreEqual() {
         //Given
-        Duration toFiveMinutesInThePast = Duration.ofMinutes(-5);
+        var toFiveMinutesInThePast = Duration.ofMinutes(-5);
         scoreboard.setClock(Clock.offset(clock, toFiveMinutesInThePast));
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
         scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, 0, 0);
 
-        Duration noOffset = Duration.ofMinutes(0);
+        var noOffset = Duration.ofMinutes(0);
         scoreboard.setClock(Clock.offset(clock, noOffset));
         scoreboard.startNewMatch(HOME_TEAM_2, AWAY_TEAM_2);
         scoreboard.updateScore(HOME_TEAM_2, AWAY_TEAM_2, 2, 2);
 
-        Duration toFiveMinutesInTheFuture = Duration.ofMinutes(5);
+        var toFiveMinutesInTheFuture = Duration.ofMinutes(5);
         scoreboard.setClock(Clock.offset(clock, toFiveMinutesInTheFuture));
         scoreboard.startNewMatch(HOME_TEAM_3, AWAY_TEAM_3);
         scoreboard.updateScore(HOME_TEAM_3, AWAY_TEAM_3, 2, 2);
 
+        scoreboard.setClock(Clock.offset(clock, toFiveMinutesInTheFuture));
+        scoreboard.startNewMatch(HOME_TEAM_4, AWAY_TEAM_4);
+        scoreboard.updateScore(HOME_TEAM_4, AWAY_TEAM_4, 6, 6);
+
         //When
-        List<Match> matchesInProgress = scoreboard.getSummary();
+        var matchesInProgress = scoreboard.getSummary();
 
         //Then
-        assertThat(matchesInProgress, hasSize(3));
-        assertThat(matchesInProgress.get(0).getHomeTeam(), equalTo(HOME_TEAM_3));
-        assertThat(matchesInProgress.get(1).getHomeTeam(), equalTo(HOME_TEAM_2));
-        assertThat(matchesInProgress.get(2).getHomeTeam(), equalTo(HOME_TEAM_1));
+        assertThat(matchesInProgress, hasSize(4));
+        assertThat(matchesInProgress.get(0).getHomeTeam(), equalTo(HOME_TEAM_4));
+        assertThat(matchesInProgress.get(1).getHomeTeam(), equalTo(HOME_TEAM_3));
+        assertThat(matchesInProgress.get(2).getHomeTeam(), equalTo(HOME_TEAM_2));
+        assertThat(matchesInProgress.get(3).getHomeTeam(), equalTo(HOME_TEAM_1));
     }
 
     @Test
-    public void shouldNotStartMatch_givenMatchInProgress() {
+    public void shouldNotStartMatch_givenHomeTeamInMatchInProgress() {
         //Given
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
 
         //When Then
-        Exception exception = assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1)
+                () -> scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_2)
         );
-        assertEquals(exception.getMessage(), "Match is already in progress");
+        assertEquals(exception.getMessage(), "Team is already in match in progress");
+    }
+
+    @Test
+    public void shouldNotStartMatch_givenAwayTeamInMatchInProgress() {
+        //Given
+        scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
+
+        //When Then
+        var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.startNewMatch(HOME_TEAM_2, AWAY_TEAM_1)
+        );
+        assertEquals(exception.getMessage(), "Team is already in match in progress");
     }
 
     @ParameterizedTest
     @MethodSource("startMatchWithInvalidInput")
     public void shouldNotStartMatch_givenInvalidInput(String homeTeam, String awayTeam) {
-        Exception exception = assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> scoreboard.startNewMatch(homeTeam, awayTeam)
         );
@@ -168,7 +187,7 @@ class ScoreboardTest {
 
     @Test
     public void shouldNotUpdateScore_givenMatchNotInProgress() {
-        Exception exception = assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, 0, 0)
         );
@@ -182,7 +201,7 @@ class ScoreboardTest {
         scoreboard.startNewMatch(HOME_TEAM_1, AWAY_TEAM_1);
 
         //When Then
-        Exception exception = assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> scoreboard.updateScore(HOME_TEAM_1, AWAY_TEAM_1, homeTeamScore, awayTeamScore)
         );
@@ -198,7 +217,7 @@ class ScoreboardTest {
 
     @Test
     public void shouldNotFinishMatch_givenMatchNotInProgress() {
-        Exception exception = assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> scoreboard.finishMatch(HOME_TEAM_1, AWAY_TEAM_1)
         );

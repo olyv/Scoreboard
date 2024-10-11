@@ -22,14 +22,14 @@ public class Scoreboard {
     }
 
     private static Comparator<Match> getMatchComparator() {
-        Comparator<Match> comparingByTotalScore = Comparator.comparing((Match it) -> it.getHomeTeamScore() + it.getAwayTeamScore(), Comparator.reverseOrder());
-        Comparator<Match> comparingByLatestUpdate = Comparator.comparing(Match::getLatestUpdate, Comparator.reverseOrder());
+        var comparingByTotalScore = Comparator.comparing((Match it) -> {
+                    Score score = it.getScore();
+                    return score.getHomeTeamScore() + score.getAwayTeamScore();
+                }, Comparator.reverseOrder()
+        );
+        var comparingByLatestUpdate = Comparator.comparing(Match::getStarted, Comparator.reverseOrder());
         return comparingByTotalScore
                 .thenComparing(comparingByLatestUpdate);
-    }
-
-    public Clock getClock() {
-        return clock;
     }
 
     public void setClock(Clock clock) {
@@ -38,8 +38,8 @@ public class Scoreboard {
 
     public void startNewMatch(String homeTeam, String awayTeam) {
         validateStartNewMatchInput(homeTeam, awayTeam);
-        Match match = new Match(homeTeam, awayTeam);
-        match.setLatestUpdate(LocalDateTime.now(this.clock));
+        var match = new Match(homeTeam, awayTeam);
+        match.setStarted(LocalDateTime.now(this.clock));
         matchesInProgress.add(match);
     }
 
@@ -47,10 +47,13 @@ public class Scoreboard {
         if (homeTeam.equalsIgnoreCase(awayTeam)) {
             throw new IllegalArgumentException("It is not allowed to start a new match when home and away teams are the same team");
         }
-        boolean isMatchInProgress = matchesInProgress.stream()
-                .anyMatch(getMatchInProgressPredicate(homeTeam, awayTeam));
-        if (isMatchInProgress) {
-            throw new IllegalArgumentException("Match is already in progress");
+
+        boolean isHomeTeamInMatchInProgress = matchesInProgress.stream()
+                        .anyMatch(it -> it.getHomeTeam().equalsIgnoreCase(homeTeam) || it.getAwayTeam().equalsIgnoreCase(homeTeam));
+        boolean isAwaTeamInMatchInProgress = matchesInProgress.stream()
+                .anyMatch(it -> it.getHomeTeam().equalsIgnoreCase(awayTeam) || it.getAwayTeam().equalsIgnoreCase(awayTeam));
+        if (isHomeTeamInMatchInProgress || isAwaTeamInMatchInProgress) {
+            throw new IllegalArgumentException("Team is already in match in progress");
         }
     }
 
@@ -62,13 +65,12 @@ public class Scoreboard {
 
     public void updateScore(String homeTeam, String awayTeam, int homeTeamScore, int awayTeamScore) {
         validateUpdateScoreInput(homeTeamScore, awayTeamScore);
-        Match matchInProgress = matchesInProgress.stream()
+        var matchInProgress = matchesInProgress.stream()
                 .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Not able to update score as match not in progress"));
-        matchInProgress.setHomeTeamScore(homeTeamScore);
-        matchInProgress.setAwayTeamScore(awayTeamScore);
-        matchInProgress.setLatestUpdate(LocalDateTime.now(this.clock));
+        matchInProgress.getScore().setHomeTeamScore(homeTeamScore);
+        matchInProgress.getScore().setAwayTeamScore(awayTeamScore);
     }
 
     private void validateUpdateScoreInput(int homeTeamScore, int awayTeamScore) {
@@ -78,7 +80,7 @@ public class Scoreboard {
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
-        Match matchInProgress = matchesInProgress.stream()
+        var matchInProgress = matchesInProgress.stream()
                 .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Not able to finish match as it is not in progress"));
