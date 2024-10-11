@@ -149,6 +149,27 @@ class ScoreboardTest {
     }
 
     @ParameterizedTest
+    @MethodSource("startMatchWithTeamInProgress")
+    public void shouldNotStartMatch_givenTeamInMatchInProgress(String team, String opponentTeam, String otherOpponentTeam) {
+        //Given
+        scoreboard.startNewMatch(team, opponentTeam);
+
+        //When Then
+        Exception exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> scoreboard.startNewMatch(team, otherOpponentTeam)
+        );
+        assertEquals(exception.getMessage(), "Team is already in match in progress");
+    }
+
+    public static Stream<Arguments> startMatchWithTeamInProgress() {
+        return Stream.of(
+                Arguments.of(HOME_TEAM_1, HOME_TEAM_2, HOME_TEAM_2),
+                Arguments.of(HOME_TEAM_1, HOME_TEAM_2, HOME_TEAM_1)
+        );
+    }
+
+    @ParameterizedTest
     @MethodSource("startMatchWithInvalidInput")
     public void shouldNotStartMatch_givenInvalidInput(String homeTeam, String awayTeam) {
         Exception exception = assertThrows(
