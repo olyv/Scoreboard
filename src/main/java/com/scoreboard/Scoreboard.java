@@ -22,12 +22,12 @@ public class Scoreboard {
     }
 
     private static Comparator<Match> getMatchComparator() {
-        Comparator<Match> comparingByTotalScore = Comparator.comparing((Match it) -> {
+        var comparingByTotalScore = Comparator.comparing((Match it) -> {
                     Score score = it.getScore();
                     return score.getHomeTeamScore() + score.getAwayTeamScore();
                 }, Comparator.reverseOrder()
         );
-        Comparator<Match> comparingByLatestUpdate = Comparator.comparing(Match::getStarted, Comparator.reverseOrder());
+        var comparingByLatestUpdate = Comparator.comparing(Match::getStarted, Comparator.reverseOrder());
         return comparingByTotalScore
                 .thenComparing(comparingByLatestUpdate);
     }
@@ -38,7 +38,7 @@ public class Scoreboard {
 
     public void startNewMatch(String homeTeam, String awayTeam) {
         validateStartNewMatchInput(homeTeam, awayTeam);
-        Match match = new Match(homeTeam, awayTeam);
+        var match = new Match(homeTeam, awayTeam);
         match.setStarted(LocalDateTime.now(this.clock));
         matchesInProgress.add(match);
     }
@@ -65,7 +65,7 @@ public class Scoreboard {
 
     public void updateScore(String homeTeam, String awayTeam, int homeTeamScore, int awayTeamScore) {
         validateUpdateScoreInput(homeTeamScore, awayTeamScore);
-        Match matchInProgress = matchesInProgress.stream()
+        var matchInProgress = matchesInProgress.stream()
                 .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Not able to update score as match not in progress"));
@@ -80,7 +80,7 @@ public class Scoreboard {
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
-        Match matchInProgress = matchesInProgress.stream()
+        var matchInProgress = matchesInProgress.stream()
                 .filter(getMatchInProgressPredicate(homeTeam, awayTeam))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Not able to finish match as it is not in progress"));
